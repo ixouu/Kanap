@@ -1,28 +1,28 @@
 const apiUrl = "http://localhost:3000/api/products";
-const items = document.getElementById('items');
-/*
-* Initialize class Collection
-*/
+
+//Initialize class Collection
 class Collection{
-/* 
-* Fetching API
-* apiURL {string} URL
-*/ 
-async fetchProducts(){
-    fetch(apiUrl)
-    .then(data => data.json())
-    .then(jsonListProduct =>{
-        // Iterate through the DOM and insert new card with the method insertCard
-        for (let jsonProduct of jsonListProduct){
-            let productCard = new Card(jsonProduct);
-            productCard.insertCard();
-        }
-    })
+
+// Fetch the API, transform API Data to JSON format, iterate through the DOM and insert new card with the method insertCard
+    async fetchProducts(){
+        fetch(apiUrl)
+        .then(response => {
+            if (response.status !== 200){
+                return;
+            } else {
+                return response.json();
+            }
+        })
+        .then(jsonListProduct =>{
+            for (let jsonProduct of jsonListProduct){
+                let productCard = new Card(jsonProduct);
+                productCard.insertCard();
+            }
+        })
+    };
 }
-}
-/*
-* Initialize class Card
-*/
+
+// Initialize class Card and create card template
 class Card{
     constructor(jsonProduct){
         this.a = document.createElement('a');
@@ -32,21 +32,19 @@ class Card{
         this.description = jsonProduct.description;
         this.altTxt = jsonProduct.altTxt;
     }
-/*
-* Method insertCard
-*
-*/
-    insertCard(){ 
+
+// HTML content is added
+    insertCard(){
         this.a.innerHTML =`
         <article>
             <img src="${this.imageUrl}" alt="${this.altTxt}">
             <h3 class="productName">${this.name}</h3>
             <p class="productDescription">${this.description}</p>
         </article>`;
-        items.append(this.a);
+        document.getElementById('items').append(this.a);
     }
 }
 
+// Create a new Collection and fetch the products
 let collection = new Collection;
 collection.fetchProducts();
-
