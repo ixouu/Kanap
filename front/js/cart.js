@@ -198,5 +198,12 @@ document.getElementById('order').addEventListener('click', e =>{
 });
 // PostOrder function
 function postOrder (){
-
+    fetch (`${apiUrl}`, {
+        method : 'POST',
+        headers : {
+            'Content-Type': 'application/x-www-form-urlencoded'
+            },
+        
+    })
+    .then()
 }
