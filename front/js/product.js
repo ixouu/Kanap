@@ -5,10 +5,13 @@ const quantityOption = document.getElementById('quantity');
 let basket = [];
 let currentId;
 
+
 //Initialize class Item
 class Item {
     constructor() {
         this.properties = [];
+        this.colorIsReadytoStore = false;
+        this.quantityIsReadytoStore = false;
     }
     //Search and return product's ID
     findIdByUrl() {
@@ -32,15 +35,50 @@ class Item {
                 let item = new ItemContent(jsonItem);
                 item.insertItemDetails();
             })
+            .catch(error => alert('Erreur : ' + error));
     };
 
     // Create an array for the current item and store into the local storage the selected options
     storeNewItemToBasket() {
+
         this.id = currentId;
         this.color = colorsOptions.value;
         this.quantity = parseInt(quantityOption.value);
+        this.checkColorsOptionsValue(this.color);
+        this.checkQuantityValue(this.quantity);
         this.properties.push(this.id, this.color, this.quantity);
-        this.saveItem();
+        if (this.colorIsReadytoStore == false && this.quantityIsReadytoStore == false){
+            alert('Vous n\'avez pas sélectionné une couleur et une quantité valide');
+        }else if(this.colorIsReadytoStore == true && this.quantityIsReadytoStore == false){
+            alert('Vous n\'avez pas sélectionné une quantité valide');
+        }else if (this.colorIsReadytoStore == false && this.quantityIsReadytoStore == true){
+            alert('Vous n\'avez pas sélectionné une couleur valide');
+        }else if (this.colorIsReadytoStore == true && this.quantityIsReadytoStore == true){
+            this.saveItem();
+            alert('votre article a été ajouté au panier');
+        }
+    }
+
+    //Check if the color value isn't empty
+    checkColorsOptionsValue(value){
+        
+        if (value == ""){
+            this.colorIsReadytoStore = false;
+        } else if (value !== ""){
+            this.colorIsReadytoStore = true;
+        }
+        return  this.colorIsReadytoStore
+    }
+    //Check if the quantity value is correct
+    checkQuantityValue(value){
+        if(value <= 0){
+            this.quantityIsReadytoStore = false;
+        }else if (value >= 100){
+            this.quantityIsReadytoStore = false;
+        }else if (0 <= value <= 100) {
+            this.quantityIsReadytoStore = true;
+        }
+        return this.quantityIsReadytoStore 
     }
 
     //save Item into the localStorage
@@ -49,7 +87,6 @@ class Item {
         // The basket doesn't exist in the localStorage, creation of basket
         if (basket == null) {
             localStorage.setItem('basket', JSON.stringify(this.properties));
-            alert('L\'article a bien été ajouté au panier');
             // The basket exists in the localStorage
         } else if (basket != null) {
             let findColor = basket.find(find => find == this.color);
@@ -59,19 +96,16 @@ class Item {
                 let itemToRemove = (basket.indexOf(this.color)) + 1;
                 basket.splice(`${itemToRemove}`, 1, this.quantity);
                 localStorage.setItem('basket', JSON.stringify(basket));
-                alert('La quantité de cet article a été mise à jour dans votre panier');
             }
             // the ID exist : new color and quantity are added to the basket
             else if (findId == this.id && findColor == undefined) {
                 basket.push(this.id, this.color, this.quantity);
                 localStorage.setItem('basket', JSON.stringify(basket));
-                alert('L\'article a bien été ajouté au panier');
             }
             // The ID doesn't exist, the item is added to the basket
             else if (findId !== this.id) {
                 basket.push(this.id, this.color, this.quantity);
                 localStorage.setItem('basket', JSON.stringify(basket));
-                alert('L\'article a bien été ajouté au panier');
             }
         }
     }
@@ -114,12 +148,7 @@ class ItemContent {
 //Listen add to cart Button and store into localStorage the new item if the inputs has been chosen;
 addToCartBtn.addEventListener('click', (e) => {
     e.preventDefault();
-    if (colorsOptions.value == "" && parseInt(quantityOption.value) < 1) {
-        alert('vous n\'avez pas sélectionné une couleur ou une quantité valide');
-        return;
-    } else {
-        item.storeNewItemToBasket();
-    }
+    item.storeNewItemToBasket();
 });
 
 // A new item is created and his data is fetched
