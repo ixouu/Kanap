@@ -1,16 +1,13 @@
 const apiUrl = "http://localhost:3000/api/products";
-const cartItems = document.getElementById('cart__items');
+let basket = getBasket();
 
 // Fetch the API and display the product on the HTML Page
-function displayItems(){
+function displayItems() {
 
-    let basket = getBasket();
-
-    for(i = 0; i < basket.length; i+=3){
-
+    for (i = 0; i < basket.length; i += 3) {
         let itemId = basket[i];
-        let itemColor = basket[i+1];
-        let itemQuantity = basket[i+2];
+        let itemColor = basket[i + 1];
+        let itemQuantity = basket[i + 2];
 
         fetch(`${apiUrl}/${itemId}`)
             .then(res => res.json())
@@ -19,7 +16,7 @@ function displayItems(){
                 newArticle.classList.add('cart__item')
                 newArticle.setAttribute('data-id', `${itemId}`);
                 newArticle.setAttribute('data-color', `${itemColor}`);
-                newArticle.innerHTML=`
+                newArticle.innerHTML = `
                 <div class="cart__item__img">
                 <img src="${data.imageUrl}" alt="${data.altTxt}">
                 </div>
@@ -27,7 +24,7 @@ function displayItems(){
                     <div class="cart__item__content__description">
                     <h2>${data.name}</h2>
                     <p>${itemColor}</p>
-                    <p>${data.price+ ',00'} €</p>
+                    <p>${data.price + ',00'} €</p>
                 </div>
                 <div class="cart__item__content__settings">
                 <div class="cart__item__content__settings__quantity">
@@ -40,68 +37,72 @@ function displayItems(){
                 </div>
                 </div>
                 `
-                cartItems.append(newArticle)
+                document.getElementById('cart__items').append(newArticle)
             })
-        .catch(error => alert('Erreur : ' + error));
+            .catch(error => alert('Erreur : ' + error));
     }
-    setTimeout(() =>{
-        getTotalQuantity ();
+    setTimeout(() => {
+        getTotalQuantity();
         deleteArticle();
         changeArticleQuantity();
         getTotalPrice();
-    },1000);
+    }, 1000);
 }
 
 // Get LocalStorage data and parse it into an array
-function getBasket(){
+function getBasket() {
+
     let basket = localStorage.getItem("basket");
-        if (basket == null){
-             return [];
-        }else{
-            return JSON.parse(basket);
+    if (basket == null) {
+        return [];
+    } else {
+        return JSON.parse(basket);
     }
 }
 
 // Update the localStorage Data
-function saveBasket(basket){
+function saveBasket(basket) {
+
     localStorage.setItem("basket", JSON.stringify(basket));
 }
 
 // Update the HTML element #totalQuantity
-function getTotalQuantity (){ 
+function getTotalQuantity() {
+
     let totalQuantity = 0;
-    document.querySelectorAll('.itemQuantity').forEach( element =>{
+    document.querySelectorAll('.itemQuantity').forEach(element => {
         totalQuantity += parseInt(element.value)
     })
     document.getElementById('totalQuantity').textContent = totalQuantity;
 }
 
 // Update de HTML element #totalPrice 
-function getTotalPrice (){
+function getTotalPrice() {
+
     let totalPrice = 0;
     let items = document.getElementsByClassName('cart__item');
-    for (let item of items){
+    for (let item of items) {
         let productPrice = parseFloat(item.querySelector('.cart__item__content__description').lastElementChild.textContent.slice(0, -5));
         let productContent = item.querySelector('.itemQuantity').value;
         totalPrice += productPrice * productContent;
     }
-    document.getElementById('totalPrice').textContent = `${totalPrice+ ',00'}`;
+    document.getElementById('totalPrice').textContent = `${totalPrice + ',00'}`;
 }
 
 // Listen every changes of items quantities, update totalPrice, item quantity and the basket in the localStorage
 function changeArticleQuantity() {
 
-    document.querySelectorAll('.itemQuantity').forEach(element =>{
+    document.querySelectorAll('.itemQuantity').forEach(element => {
         element.addEventListener('input', e => {
-            getTotalQuantity ();
+            getTotalQuantity();
             let productId = e.target.closest('article').getAttribute('data-id');
             let productColor = e.target.closest('article').getAttribute('data-color');
             let productQuantityParagraph = e.target.previousElementSibling;
-            productQuantityParagraph.textContent =`Qté : ${e.target.value} `
+            productQuantityParagraph.textContent = `Qté : ${e.target.value} `
             let basket = getBasket();
             let findProduct = basket.find(i => i == productId);
             basket.splice(findProduct, 3, productId, productColor, parseInt(element.value));
-            getTotalPrice ()
+            getTotalPrice()
             saveBasket(basket);
         })
     });
@@ -109,9 +110,9 @@ function changeArticleQuantity() {
 };
 
 // Listen the click of .deleteItem elements, remove the html article, save the basket, update the total quantity, total price and reload the location 
-function deleteArticle(){
+function deleteArticle() {
 
-    document.querySelectorAll('.deleteItem').forEach(element =>{
+    document.querySelectorAll('.deleteItem').forEach(element => {
         element.addEventListener('click', e => {
             e.stopPropagation();
             let productId = e.target.closest('article').getAttribute('data-id');
@@ -120,90 +121,115 @@ function deleteArticle(){
             basket.splice(findProduct, 3);
             saveBasket(basket);
             e.target.closest('article').remove();
-            getTotalQuantity ();
-            getTotalPrice ();
+            getTotalQuantity();
+            getTotalPrice();
             location.reload
             alert('L\artcile a bien été supprimé de votre panier')
         })
     });
-
 }
-
 displayItems();
 
-////// form //////
 
 // Create an objet to store user infos
-let userInfos = {
-    firstName : '',
-    lastName : '',
-    address : '',
-    city : '',
-    email : ''
+let contact = {
+    firstName: '',
+    lastName: '',
+    address: '',
+    city: '',
+    email: ''
 }
+
+// Verifies if the form inputs are valids or not 
 let isValidInputs = {
-    firstName : false,
-    lastName : false,
-    address : false,
-    city : false,
-    email : false
+    firstName: false,
+    lastName: false,
+    address: false,
+    city: false,
+    email: false
 }
 // Define all RegExps
 const regExpList = {
-    firstName : new RegExp('^[a-zA-Z- ]*$'),
-    lastName : new RegExp('^[A-Za-z ]*$'),
-    address : new RegExp('[a-zA-Z0-9_ ]*$'),
-    city : new RegExp('[a-zA-Z ]*$'),
-    email : /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    firstName: new RegExp('^[a-zA-Z- ]*$'),
+    lastName: new RegExp('^[A-Za-z ]*$'),
+    address: new RegExp('[a-zA-Z0-9_ ]*$'),
+    city: new RegExp('[a-zA-Z ]*$'),
+    email: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 }
-
 // Check user input and store the answer, change the value of isValidinput Object
 function checkUserInformations(input, regex, id) {
-    if (regex.test(input.value)){
+
+    if (regex.test(input.value)) {
         input.style.border = '2px solid Green';
         document.getElementById(`${id}ErrorMsg`).innerText = '';
-        userInfos[id] = input.value;
+        contact[id] = input.value;
         isValidInputs[id] = true;
     } else {
         input.style.border = '2px solid Red';
         isValidInputs[id] = false;
-        if(id =="firstName" || id == "lastName"){
+        if (id == "firstName" || id == "lastName") {
             document.getElementById(`${id}ErrorMsg`).innerText = 'Le format renseignée n\'est pas valide (ex : "Julien")';
-        }else if(id =='email'){
+        } else if (id == 'email') {
             document.getElementById(`${id}ErrorMsg`).innerText = 'Le format renseignée n\'est pas valide (ex: " johndoe@aol.com ") ';
-        }else{
+        } else {
             document.getElementById(`${id}ErrorMsg`).innerText = 'L\'information renseignée n\'est pas valide';
         }
     }
 }
-
 //Listen Inputs of the form and fire validity function on change
-for (input of document.querySelector('.cart__order__form')){
-    if (input.type == "text" || input.type == "email"){
-        input.addEventListener('change', (e) =>{
+for (input of document.querySelector('.cart__order__form')) {
+    if (input.type == "text" || input.type == "email") {
+        input.addEventListener('change', (e) => {
             checkUserInformations(e.target, regExpList[e.target.id], e.target.id);
         })
     }
 }
-//Listen order Button and if all inputs values are corrects send Post method
-document.getElementById('order').addEventListener('click', e =>{
+//Listen order Button and verifies if all inputs values are corrects and if the basket isn't empty,then call the function postOrder
+document.getElementById('order').addEventListener('click', e => {
     e.preventDefault();
     let checkInputValidity = Object.values(isValidInputs).includes(false);
-    if(checkInputValidity == true){
+    if (checkInputValidity == true) {
         alert('Les données renseignées dans le formulaire ne sont pas valides');
         return;
-    }else if (checkInputValidity == false){
+    } else if (getBasket() === []) {
+        alert('Votre panier est vide');
+        return;
+    }
+    else if (checkInputValidity == false) {
         postOrder();
     }
 });
-// PostOrder function
-function postOrder (){
-    fetch (`${apiUrl}`, {
-        method : 'POST',
-        headers : {
-            'Content-Type': 'application/x-www-form-urlencoded'
-            },
-        
+
+// Store the product Id's , create an object data with contact details and product Id's. Then this data is send to the API,
+// if an error appears, it will raise an error, else the user will be redirected to the confirmation page 
+function postOrder() {
+
+    let products = [];
+    for (i = 0; i < basket.length; i += 3) {
+        products.push(basket[i])
+    }
+    let data = {
+        contact,
+        products,
+    };
+    fetch(`${apiUrl}/order`, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': "application/json"
+        },
+        body: JSON.stringify(data)
     })
-    .then()
+        .then((res) => {
+            if (res.status == 201) {
+                alert('Votre commande a bien été validée');
+                return res.json();
+            } else if (res.status !== 201) {
+                alert('une erreur est survenue lors de l\'envoi du formulaire, veuillez réessayer')
+            }
+        })
+        .then((res) => {
+            localStorage.clear();
+            window.location.href = `../html/confirmation.html?order_id=${res.orderId}`
+        })
 }
