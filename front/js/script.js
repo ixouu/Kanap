@@ -19,7 +19,7 @@ class Collection{
                 productCard.insertCard();
             }
         })
-    };
+    }
 }
 
 // Initialize class Card and create card template
