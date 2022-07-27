@@ -246,7 +246,7 @@ async function postOrder() {
         contact,
         products,
     };
-    if (products = []){
+    if (products == []){
         alert('Votre panier est vide, veuillez y ajouter des produits avant de passer commande')
         return
     }else {

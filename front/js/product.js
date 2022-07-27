@@ -1,10 +1,3 @@
-const apiUrl = "http://localhost:3000/api/products";
-const addToCartBtn = document.getElementById('addToCart');
-const colorsOptions = document.getElementById('colors');
-const quantityOption = document.getElementById('quantity');
-let currentId;
-
-
 //Initialize class Item
 class Item {
     constructor() {
@@ -22,10 +15,11 @@ class Item {
     //Fetch the API, transform API Data to JSON format, iterate through the DOM and insert item's details
     async fetchItem() {
 
-        currentId = this.findIdByUrl();
-        fetch(`${apiUrl}/${currentId}`)
+        this.id = this.findIdByUrl();
+        fetch(`http://localhost:3000/api/products/${this.id}`)
             .then(response => {
                 if (response.status !== 200) {
+                    console.log('Erreur status code : ' + response.status)
                     return;
                 } else {
                     return response.json();
@@ -35,18 +29,15 @@ class Item {
                 let item = new ItemContent(data);
                 item.insertItemDetails();
             })
-            .catch(error => console('Erreur : ' + error));
     }
 
-    // Create an array for the current item and store into the local storage the selected options
+    // Save the current item in the local Storage
     storeNewItemToBasket() {
 
-        this.id = currentId;
-        this.color = colorsOptions.value;
-        this.quantity = parseInt(quantityOption.value);
+        this.color = document.getElementById('colors').value;
+        this.quantity = parseInt(document.getElementById('quantity').value);
         this.checkColorsOptionsValue(this.color);
         this.checkQuantityValue(this.quantity);
-        this.properties.push(this.id, this.color, this.quantity);
         if (this.colorIsReadytoStore == false && this.quantityIsReadytoStore == false){
             alert('Vous n\'avez pas sélectionné une couleur et une quantité valide');
         }else if(this.colorIsReadytoStore == true && this.quantityIsReadytoStore == false){
@@ -54,6 +45,7 @@ class Item {
         }else if (this.colorIsReadytoStore == false && this.quantityIsReadytoStore == true){
             alert('Vous n\'avez pas sélectionné une couleur valide');
         }else if (this.colorIsReadytoStore == true && this.quantityIsReadytoStore == true){
+            this.properties.push(this.id, this.color, this.quantity);
             this.saveItem();
         }
     }
@@ -70,6 +62,7 @@ class Item {
     }
     //Check if the quantity value is correct
     checkQuantityValue(value){
+        
         if(value <= 0){
             this.quantityIsReadytoStore = false;
         }else if (value >= 100){
@@ -80,43 +73,60 @@ class Item {
         return this.quantityIsReadytoStore 
     }
 
+    findDuplicateColor(basket){
+        for (let i = 0; i < basket.length; i+= 3){
+            let foundColor = basket[i+1]
+            if (foundColor == this.color){
+                return true
+            }
+        }
+    }
+
+    checkBasket(basket){
+        let findColor = basket.find(find => find == this.color);
+        let findId = basket.find(find => find == this.id);
+        let findQuantity = basket.find(find => find == this.quantity)
+        // The Color , the ID and the quantity exist and are the same : the localStorage isn't 
+        // update, return an alert
+        if (findId == this.id && findColor == this.color && findQuantity == this.quantity){
+            alert('Cet article existe deja dans votre panier, veuillez renseigner une autre quantité pour mettre à jour votre panier.')
+            return
+        }
+        // The Color and the ID exist : Item's quantity is update in the basket
+        else if (findId == this.id && findColor == this.color && findQuantity !== this.quantity)  {
+            let itemToRemove = (basket.indexOf(this.color)) + 1;
+            basket.splice(`${itemToRemove}`, 1, this.quantity);
+            localStorage.setItem('basket', JSON.stringify(basket));
+            alert('La quantité du produit a été mise à jour dans votre panier.');
+        }
+        // the ID exist : new color and quantity are added in the basket
+        else if (findId == this.id &&  this.findDuplicateColor(basket)) {
+            basket.push(this.id, this.color, this.quantity);
+            localStorage.setItem('basket', JSON.stringify(basket));
+            alert('Votre article a été ajouté au panier.');
+        }
+        // The ID doesn't exist :  the item is added in the basket
+        else if (findId !== this.id) {
+            basket.push(this.id, this.color, this.quantity);
+            localStorage.setItem('basket', JSON.stringify(basket));
+            alert('Votre article a été ajouté au panier.');
+        }
+    }
+
     //save Item into the localStorage
     saveItem() {
         let basket = JSON.parse(localStorage.getItem("basket"));
+        console.log('basket '+basket)
         // The basket doesn't exist in the localStorage, creation of basket
         if (basket == null) {
             localStorage.setItem('basket', JSON.stringify(this.properties));
             // The basket exists in the localStorage
         } else if (basket != null) {
-            let findColor = basket.find(find => find == this.color);
-            let findId = basket.find(find => find == this.id);
-            let findQuantity = basket.find(find => find == this.quantity)
-            // The Color , the ID and the quantity exist and are the same : the localStorage isn't update, return an alert
-            if (findId == this.id && findColor == this.color && findQuantity == this.quantity){
-                alert('Cet article existe deja dans votre panier, veuillez renseigner une autre quantité pour mettre à jour votre panier.')
-                return
-            }
-            // The Color and the ID exist : Item's quantity is update in the basket
-            else if (findId == this.id && findColor == this.color && findQuantity !== this.quantity)  {
-                let itemToRemove = (basket.indexOf(this.color)) + 1;
-                basket.splice(`${itemToRemove}`, 1, this.quantity);
-                localStorage.setItem('basket', JSON.stringify(basket));
-                alert('La quantité du produit a été mise à jour dans votre panier.')
-            }
-            // the ID exist : new color and quantity are added in the basket
-            else if (findId == this.id && findColor == undefined) {
-                basket.push(this.id, this.color, this.quantity);
-                localStorage.setItem('basket', JSON.stringify(basket));
-                alert('Votre article a été ajouté au panier.');
-            }
-            // The ID doesn't exist :  the item is added in the basket
-            else if (findId !== this.id) {
-                basket.push(this.id, this.color, this.quantity);
-                localStorage.setItem('basket', JSON.stringify(basket));
-                alert('Votre article a été ajouté au panier.');
-            }
+            this.checkBasket(basket)
         }
+
     }
+
 }
 
 //Initialize class Item Content
@@ -154,7 +164,7 @@ class ItemContent {
     }
 }
 //Listen add to cart Button and store into localStorage the new item if the inputs has been chosen;
-addToCartBtn.addEventListener('click', (e) => {
+document.getElementById('addToCart').addEventListener('click', (e) => {
     e.preventDefault();
     item.storeNewItemToBasket();
 });
