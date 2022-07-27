@@ -2,7 +2,6 @@ const apiUrl = "http://localhost:3000/api/products";
 const addToCartBtn = document.getElementById('addToCart');
 const colorsOptions = document.getElementById('colors');
 const quantityOption = document.getElementById('quantity');
-let basket = [];
 let currentId;
 
 
@@ -18,10 +17,11 @@ class Item {
         let searchParams = new URLSearchParams(document.location.search);
         let findCurrentItemId = searchParams.get('id');
         return findCurrentItemId;
-    };
+    }
 
     //Fetch the API, transform API Data to JSON format, iterate through the DOM and insert item's details
     async fetchItem() {
+
         currentId = this.findIdByUrl();
         fetch(`${apiUrl}/${currentId}`)
             .then(response => {
@@ -31,12 +31,12 @@ class Item {
                     return response.json();
                 }
             })
-            .then(jsonItem => {
-                let item = new ItemContent(jsonItem);
+            .then(data => {
+                let item = new ItemContent(data);
                 item.insertItemDetails();
             })
-            .catch(error => alert('Erreur : ' + error));
-    };
+            .catch(error => console('Erreur : ' + error));
+    }
 
     // Create an array for the current item and store into the local storage the selected options
     storeNewItemToBasket() {
@@ -55,7 +55,6 @@ class Item {
             alert('Vous n\'avez pas sélectionné une couleur valide');
         }else if (this.colorIsReadytoStore == true && this.quantityIsReadytoStore == true){
             this.saveItem();
-            alert('votre article a été ajouté au panier');
         }
     }
 
@@ -91,25 +90,34 @@ class Item {
         } else if (basket != null) {
             let findColor = basket.find(find => find == this.color);
             let findId = basket.find(find => find == this.id);
+            let findQuantity = basket.find(find => find == this.quantity)
+            // The Color , the ID and the quantity exist and are the same : the localStorage isn't update, return an alert
+            if (findId == this.id && findColor == this.color && findQuantity == this.quantity){
+                alert('Cet article existe deja dans votre panier, veuillez renseigner une autre quantité pour mettre à jour votre panier.')
+                return
+            }
             // The Color and the ID exist : Item's quantity is update in the basket
-            if (findId == this.id && findColor == this.color) {
+            else if (findId == this.id && findColor == this.color && findQuantity !== this.quantity)  {
                 let itemToRemove = (basket.indexOf(this.color)) + 1;
                 basket.splice(`${itemToRemove}`, 1, this.quantity);
                 localStorage.setItem('basket', JSON.stringify(basket));
+                alert('La quantité du produit a été mise à jour dans votre panier.')
             }
-            // the ID exist : new color and quantity are added to the basket
+            // the ID exist : new color and quantity are added in the basket
             else if (findId == this.id && findColor == undefined) {
                 basket.push(this.id, this.color, this.quantity);
                 localStorage.setItem('basket', JSON.stringify(basket));
+                alert('Votre article a été ajouté au panier.');
             }
-            // The ID doesn't exist, the item is added to the basket
+            // The ID doesn't exist :  the item is added in the basket
             else if (findId !== this.id) {
                 basket.push(this.id, this.color, this.quantity);
                 localStorage.setItem('basket', JSON.stringify(basket));
+                alert('Votre article a été ajouté au panier.');
             }
         }
     }
-};
+}
 
 //Initialize class Item Content
 class ItemContent {
@@ -142,7 +150,7 @@ class ItemContent {
             this.colorOption.setAttribute('value', `${color}`);
             this.colorOption.innerText = `${color}`;
             this.colorSelectElement.appendChild(this.colorOption);
-        };
+        }
     }
 }
 //Listen add to cart Button and store into localStorage the new item if the inputs has been chosen;
