@@ -1,7 +1,6 @@
 //Initialize class Collection
 class Collection{
     constructor(){
-
         this.apiUrl = "http://localhost:3000/api/products"
     }
 
@@ -12,26 +11,24 @@ class Collection{
         fetch(this.apiUrl)
         .then(response => {
             if (response.status !== 200){
-                console.log('Erreur status code : ' + response.status)
                 return;
             } else {
                 return response.json();
             }
         })
         .then(jsonListProducts =>{
-            console.log(jsonListProducts)
             for (let jsonProduct of jsonListProducts){
                 let productCard = new Card(jsonProduct);
                 productCard.insertCard();
             }
         })
+        .catch(error => console('Erreur : ' + error));
     }
 }
 
 // Initialize class Card and create card template
 class Card{
     constructor(jsonProduct){
-
         this.a = document.createElement('a');
         this.id = jsonProduct._id;
         this.a.setAttribute('href', `./product.html?id=${this.id}`);
