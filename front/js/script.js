@@ -1,14 +1,11 @@
 //Initialize class Collection
 class Collection{
-    constructor(){
-        this.apiUrl = "http://localhost:3000/api/products"
-    }
 
 // Fetch the API, transform API Data to JSON format, iterate through the DOM and insert new card with 
 // the method insertCard
     async fetchProducts(){
 
-        fetch(this.apiUrl)
+        fetch("http://localhost:3000/api/products")
         .then(response => {
             if (response.status !== 200){
                 return;

@@ -53,7 +53,6 @@ class Item {
                 return
             } else {
                 if(foundProduct.quantity == product.quantity ){
-                    console.log(foundProduct.quantity)
                     alert('Veuillez changer la quantité ou la couleur')
                     return
                 }else if (foundProduct.quantity !== product.quantity){

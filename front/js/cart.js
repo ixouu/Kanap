@@ -22,7 +22,7 @@ class Basket {
         return totalPrice;
     }
     // Return an array of the localStorage
-    get displayBasket() {
+    get basket() {
         let basket = localStorage.getItem("basket");
         if (basket == null) {
             return [];
@@ -46,17 +46,15 @@ class Basket {
     }
     // Remove product in the localStorage
     removeItemFromBasket(id, color){
-        let basket = this.displayBasket;
+        let basket = this.basket;
         let foundProduct = basket.find(p => p.id == id && p.color == color)
         basket = basket.filter(p => p != foundProduct);
-        console.log(basket)
         this.saveBasket(basket)
     }
     // update the localStorage
     updateItemFromBasket(id, color, quantity){
-        let basket = this.displayBasket;
+        let basket = this.basket;
         let foundProduct = basket.find(p => p.id == id && p.color == color)
-        console.log(foundProduct)
         switch (foundProduct.quantity >= 1) {
             case false:
                 alert('Pas de valeur trouvée'); 
@@ -72,8 +70,7 @@ class Basket {
     }
     // fetch the API and create new objects
     apiData() {
-        let basket = this.displayBasket;
-        console.log(basket.length)
+        let basket = this.basket;
         for (let i = 0; i < basket.length; i++) {
             let productId = basket[i].id
             let productColor = basket[i].color;
@@ -255,7 +252,7 @@ document.getElementById('order').addEventListener('click', e => {
     if (checkInputValidity == true) {
         alert('Les données renseignées dans le formulaire ne sont pas valides');
         return;
-    } else if (cart.displayBasket === []) {
+    } else if (cart.basket === []) {
         alert('Votre panier est vide');
         return;
     }
@@ -269,8 +266,8 @@ document.getElementById('order').addEventListener('click', e => {
 async function postOrder() {
 
     let products = [];
-    for (let i = 0; i < cart.displayBasket.length; i ++) {
-        products.push(cart.displayBasket[i].id)
+    for (let i = 0; i < cart.basket.length; i ++) {
+        products.push(cart.basket[i].id)
     }
     let data = {
         contact,
