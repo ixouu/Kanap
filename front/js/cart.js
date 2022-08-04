@@ -304,7 +304,7 @@ async function postOrder() {
                 localStorage.clear();
                 window.location.href = `../html/confirmation.html?order_id=${res.orderId}`;
             })
-            .catch(error => console('Erreur : ' + error));
+            .catch(error => console.log('Erreur : ' + error));
     }
 }
 

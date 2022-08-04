@@ -81,7 +81,7 @@ class Item {
                 let item = new ItemContent(data);
                 item.insertItemDetails();
             })
-            .catch(error => console('Erreur : ' + error));
+            .catch(error => console.log('Erreur : ' + error));
     }
 }
 
