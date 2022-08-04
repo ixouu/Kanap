@@ -19,7 +19,7 @@ class Collection{
                 productCard.insertCard();
             }
         })
-        .catch(error => console('Erreur : ' + error));
+        .catch(error => console.log('Erreur : ' + error));
     }
 }
 
@@ -33,6 +33,14 @@ class Card{
         this.imageUrl = jsonProduct.imageUrl;
         this.description = jsonProduct.description;
         this.altTxt = jsonProduct.altTxt;
+        this.article = document.createElement('article');
+        this.img = document.createElement('img');
+        this.img.setAttribute('src', `${this.imageUrl}`);
+        this.img.setAttribute('alt', `${this.altTxt}`)
+        this.title = document.createElement('h3');
+        this.title.classList.add('productName')
+        this.paragraph = document.createElement('p');
+        this.paragraph.classList.add('productDescription');
     }
 
 //Method who ensures data ID from backend is valid 
@@ -71,12 +79,10 @@ class Card{
         
         this.validateCard()
         if (this.isValid == true){
-        this.a.innerHTML =`
-        <article>
-            <img src="${this.imageUrl}" alt="${this.altTxt}">
-            <h3 class="productName">${this.name}</h3>
-            <p class="productDescription">${this.description}</p>
-        </article>`;
+        this.a.append(this.article)
+        this.article.append(this.img, this.title, this.paragraph)
+        this.title.innerText = `${this.name}`;
+        this.paragraph.innerText = `${this.description}`
         document.getElementById('items').append(this.a);
         }
     }

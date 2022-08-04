@@ -24,7 +24,7 @@ class Item {
         if ( color == '' && quantity == 0 ){
             alert('Vous n\'avez pas sélectionné une couleur et une quantité valide');
             return false
-        }else if(color !== '' && quantity == 0){
+        }else if(color !== '' && quantity == 0 || quantity < 0){
             alert('Vous n\'avez pas sélectionné une quantité valide');
             return false
         }else if (color == '' && quantity !== 0){

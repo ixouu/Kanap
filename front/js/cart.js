@@ -141,30 +141,35 @@ class Item {
 
         let newImgDiv = document.createElement('div');
         newImgDiv.classList = "cart__item__img";
-        newImgDiv.innerHTML = `
-            <img src="${this.itemImageUrl}" alt="${this.itemAltTxt}">
-        `
+
+        let newImg = document.createElement('img');
+        newImg.setAttribute('src', `${this.itemImageUrl}`);
+        newImg.setAttribute('alt', `${this.itemAltTxt}`);
 
         let newCartItemContent = document.createElement('div');
         newCartItemContent.classList = 'cart__item__content';
-        newCartItemContent.innerHTML = `
-            <div class="cart__item__content__description">
+
+        let cartItemContentDescription = document.createElement('div');
+        cartItemContentDescription.classList.add('cart__item__content__description');
+        cartItemContentDescription.insertAdjacentHTML("afterbegin", `
                 <h2>${this.itemName}</h2>
                 <p>${this.itemColor}</p>
                 <p>${this.itemPrice} €</p>
-            </div>
-        `;
+        ` );
 
         let newCartContentSettings = document.createElement('div');
         newCartContentSettings.classList = 'cart__item__content__settings';
-        newCartContentSettings.innerHTML = `
-            <div class="cart__item__content__settings__quantity">
-                <p>Qté : ${this.itemQuantity}</p>
+
+        let cartItemContentSettingsDelete = document.createElement('div');
+        cartItemContentSettingsDelete.classList.add('cart__item__content__settings__delete');
+
+        let newCartContentSettingsQuantity = document.createElement('div');
+        newCartContentSettingsQuantity.insertAdjacentHTML("afterbegin",`
+        <p>Qté : ${this.itemQuantity}</p>
                 <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${this.itemQuantity}">
-            </div>
-            <div class="cart__item__content__settings__delete">
-            </div>
-        `;
+        `)
+
+
         let deleteItemBtn = document.createElement('p');
         deleteItemBtn.classList = 'deleteItem';
         deleteItemBtn.innerText = 'Supprimer';
@@ -173,8 +178,10 @@ class Item {
         });
         // Listen the click of .deleteItem elements, remove the html article, save the basket,
         // update the total quantity, total price and reload the location function 
-        newCartItemContent.append(newCartContentSettings);
+        newCartItemContent.append(cartItemContentDescription, newCartContentSettings, cartItemContentSettingsDelete);
         newArticle.append(newImgDiv, newCartItemContent);
+        newImgDiv.append(newImg);
+        newCartContentSettings.append(newCartContentSettingsQuantity)
         document.getElementById('cart__items').append(newArticle);
         document.querySelectorAll('.cart__item__content__settings__delete').forEach(element => {
             element.append(deleteItemBtn)
@@ -210,11 +217,11 @@ let isValidInputs = {
 }
 // Define all RegExps
 const regExpList = {
-    firstName: new RegExp('(^[a-zA-Zéè -]{4,20}$)'),
-    lastName: new RegExp('(^[a-zA-Z -]{4,30}$)'),
+    firstName: new RegExp('(^[a-zA-Zéè -]{2,20}$)'),
+    lastName: new RegExp('(^[a-zA-Z -]{2,30}$)'),
     address: new RegExp('(^[a-zA-Z 0-9,-]{4,50}$)'),
     city: new RegExp('(^[a-zA-Zàéè -]{4,30}$)'),
-    email: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    email: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,3}))$/
 }
 // Check user input and store the answer, change the value of isValidinput Object
 function checkUserInformations(input, regex, id) {
