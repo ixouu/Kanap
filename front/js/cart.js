@@ -38,6 +38,7 @@ class Basket {
     displayTotalArticle() {
         totalArticle.textContent = this.totalArticle;
     }
+
     // Update the localStorage Data
     saveBasket(basket) {
         this.displayTotalPrice();
@@ -124,9 +125,17 @@ class Item {
         let articleQuantity = article.querySelector('.itemQuantity').value;
         let productQuantityParagraph = article.querySelector('.itemQuantity').previousElementSibling;
         productQuantityParagraph.textContent = `Qté : ${articleQuantity} `;
-        cart.updateItemFromBasket(articleId ,articleColor, articleQuantity)
-        cart.displayTotalPrice();
-        cart.displayTotalArticle()
+        if (articleQuantity <= 0 || articleQuantity >= 100){
+            cart.updateItemFromBasket(articleId ,articleColor, 1)
+            articleQuantity = 1
+            productQuantityParagraph = 1
+            location.reload()
+        } else {
+            cart.updateItemFromBasket(articleId ,articleColor, articleQuantity)
+            cart.displayTotalPrice();
+            cart.displayTotalArticle()
+        }
+
     }
     // Create HTML elements and add them in the DOM
     displayItems() {

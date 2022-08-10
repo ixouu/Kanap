@@ -56,8 +56,7 @@ class Item {
                     alert('Veuillez changer la quantité ou la couleur')
                     return
                 }else if (foundProduct.quantity !== product.quantity){
-                    alert('La quantité de ce produit a été mis à jour dans votre panier')
-                    foundProduct.quantity = product.quantity;
+                    foundProduct.quantity += product.quantity;
                     this.saveBasket(basket);
                 }
             }
