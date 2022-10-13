@@ -3,7 +3,7 @@ class Collection{
 
 // Fetch the API, transform API Data to JSON format, iterate through the DOM and insert new card with 
 // the method insertCard
-    async fetchProducts(){
+    fetchProducts(){
 
         fetch("http://localhost:3000/api/products")
         .then(response => {

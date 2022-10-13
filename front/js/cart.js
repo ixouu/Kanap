@@ -92,6 +92,7 @@ class Basket {
                     this.displayTotalArticle();
                 })
                 .catch(error => console('Erreur : ' + error));
+
         }       
     }
 
@@ -200,6 +201,8 @@ class Item {
                 this.updateQuantity(e.target.closest('article'))
             });
         });
+        let qte = document.getElementsByClassName('itemQuantity')
+        console.log(qte.length)
      }
 }
 
@@ -320,3 +323,5 @@ async function postOrder() {
 let item;
 let cart = new Basket;
 cart.apiData();
+
+
